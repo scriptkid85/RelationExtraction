@@ -23,5 +23,5 @@ private:
 	static const int FEATURE_MAX_NUM = INT_MAX;
 	static const int RELATION_MAX_NUM = 100;
 
-	boost::unordered_map<int, boost::unordered_map<std::string, double, hash::fnv_1> > featureTheta;
+	boost::unordered_map<string, double* , hash::fnv_1> featureTheta;
 };

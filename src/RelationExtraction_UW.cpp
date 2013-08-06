@@ -16,13 +16,13 @@
 #include "stdlib.h"
 #include <ctime>
 
-#define MAX_RUN 2
+#define MAX_RUN 50
 #define RELATION_NUM 24
-#define _SECURE_SCL 1
 
 using namespace std;
 
 FeatureController fc(RELATION_NUM + 1);
+int run_num = MAX_RUN;
 
 void printVector(vector<string> v) {
 	for (size_t i = 0; i < v.size(); ++i) {
@@ -375,7 +375,8 @@ void test(char *testfile) {
 void train(char *trainfile) {
 	cout << "trainfile: " << trainfile << endl;
 	int run;
-	for (run = 0; run < MAX_RUN; ++run) {
+	for (run = 0; run < run_num; ++run) {
+		cout << "run #: " << run << endl;
 		ifstream file(trainfile);
 
 		string line, pair, labels;
@@ -461,10 +462,10 @@ void train(char *trainfile) {
 
 				if (!(YZ[0] == Y)) {
 					Zstar.clear();
-					Zstar = maximizeZfast(featureOfOnePair, Y);
+					Zstar = maximizeZ(featureOfOnePair, Y);
 					if (Zstar.size() == 0) {
 						errorcount++;
-						cout << count << endl;
+//						cout << count << endl;
 					}
 					//					printVector(Zstar);
 					//update theta
@@ -506,7 +507,8 @@ void train(char *trainfile) {
 }
 
 int main(int argc, char *args[]) {
-	train(args[1]);
-	test(args[2]);
+	run_num = atoi(args[1]);
+	train(args[2]);
+	test(args[3]);
 	fc.clear();
 }
