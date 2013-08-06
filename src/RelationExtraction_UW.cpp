@@ -59,7 +59,7 @@ vector<vector<int> > maximizeYZ(vector<vector<string> > featureOfOnePair) {
 		double max = -1, thetaExtract = 0;
 		int label = 0;
 		feature = featureOfOnePair[sentence];
-		for (int j = 0; j < numberofrelation; ++ j) {
+		for (int j = 0; j < numberofrelation; ++j) {
 			thetaExtract = computeThetaExtract(j, feature);
 			if (thetaExtract > max) {
 				max = thetaExtract;
@@ -133,7 +133,7 @@ vector<int> maximizeZfast(vector<vector<string> > featureOfOnePair,
 		best = 0;
 		max = DP[0][i];
 		extract = -1;
-		for (size_t relation = 1; relation < numberofnonzeros; ++ relation) {
+		for (size_t relation = 1; relation < numberofnonzeros; ++relation) {
 			extract = DP[relation][i];
 			if (extract > max) {
 				max = extract;
@@ -287,11 +287,22 @@ void testMulti(string pair, vector<vector<string> > fv) {
 	printVector(maximizeYZ(fv)[0]);
 }
 
+
+bool vectorContain(vector<int> big, vector<int> small){
+	if(big == small)return true;
+	bool flag = false;
+	for(size_t i = 0; i < RELATION_NUM + 1; ++ i){
+		if(big[i] == 1 && small[i] == 1)flag = true;
+		else if(big[i] == 0 && small[i] == 1)return false;
+	}
+	return flag;
+}
+
 void test(char *testfile) {
 
 	int count = 1;
 	int correct = 0;
-
+	int partcorrect = 0;
 	cout << "testFile: " << testfile << endl;
 	ifstream file(testfile);
 
@@ -346,9 +357,13 @@ void test(char *testfile) {
 			printVector(Ytest);
 			cout << "true label: ";
 			printVector(Y);
-			if (Ytest == Y)
+			if (Ytest == Y){
 				correct++;
-
+				partcorrect++;
+			}
+			else if(vectorContain(Y, Ytest)){
+				partcorrect++;
+			}
 			Y.clear();
 			Ytest.clear();
 			pair = tokens[0];
@@ -367,8 +382,10 @@ void test(char *testfile) {
 	tokens.clear();
 	labelAndInstance.clear();
 
-	cout << "correctness: " << correct << "/" << count << "="
+	cout << "exact-correctness: " << correct << "/" << count << "="
 			<< correct / (double) count << endl;
+	cout << "partial-correctness: " << partcorrect << "/" << count << "="
+				<< partcorrect / (double) count << endl;
 }
 
 //input line format: relation_id relation_id...\tArg1--R--Arg2--S--SentenceID| f1:v1 f2:v2...
@@ -507,8 +524,16 @@ void train(char *trainfile) {
 }
 
 int main(int argc, char *args[]) {
-	run_num = atoi(args[1]);
-	train(args[2]);
-	test(args[3]);
-	fc.clear();
+	if (argc == 5) {
+		run_num = atoi(args[1]);
+		train(args[2]);
+		test(args[3]);
+		fc.save(args[4]);
+		fc.clear();
+	}
+	if (argc == 3){
+		fc.load(args[1]);
+		test(args[2]);
+		fc.clear();
+	}
 }
